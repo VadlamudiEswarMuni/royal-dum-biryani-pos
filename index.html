@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Royal Dum Biryani - POS</title>
+<style>
+:root{--red:#8b1717;--red2:#a91f1f;--green:#16804f;--bg:#f4f6f8;--border:#d9dee5;--text:#20252b;--muted:#66717e;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+header{height:70px;background:var(--red);color:#fff;padding:12px 22px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:22px;color:#fff} header p{margin:4px 0 0;color:#fff;font-size:13px}
+button{border:0;border-radius:7px;padding:10px 14px;cursor:pointer;font-weight:700;background:#e9edf1;color:#20252b}
+button.primary,.navbtn.active{background:var(--red);color:#fff}button.success{background:var(--green);color:#fff}button.danger{background:#b62929;color:#fff}button:disabled{opacity:.5;cursor:not-allowed}
+nav{background:#fff;padding:10px 14px;display:flex;gap:8px;overflow:auto;border-bottom:1px solid var(--border)}
+.navbtn{white-space:nowrap}
+main{max-width:1500px;margin:auto;padding:18px}
+.tab{display:none}.tab.active{display:block}
+.page-title{margin:0 0 4px;color:var(--text);font-size:22px}.page-subtitle{margin:0 0 16px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;min-height:105px}
+.card span{display:block;color:var(--muted);font-weight:700;font-size:13px}.card b{display:block;color:var(--text);font-size:26px;margin-top:8px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin-top:16px}
+.panel h2{color:var(--text);margin:0 0 14px;font-size:18px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.field label{display:block;color:#394553;font-size:12px;font-weight:700;margin-bottom:6px}
+input,select{width:100%;padding:10px 11px;border:1px solid #cbd3dc;border-radius:7px;background:#fff;color:var(--text);font-size:14px;outline:none}
+input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 2px #8b171722}
+.cart-layout{display:grid;grid-template-columns:1.45fr 1fr;gap:16px}
+.table-wrap{overflow:auto;margin-top:14px;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#eef2f5;color:#26313d;font-weight:800;padding:10px;text-align:left;border-bottom:1px solid var(--border)}
+td{color:#2a323b;padding:10px;border-bottom:1px solid #e7eaee;vertical-align:middle;white-space:nowrap}
+.empty{padding:38px!important;text-align:center;color:#687583!important}
+.menu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.menu-item{border:1px solid var(--border);border-radius:9px;padding:14px;background:#fff;min-height:130px;display:flex;flex-direction:column}
+.menu-item h3{margin:0 0 6px;color:var(--text);font-size:16px}.menu-item .cat{color:var(--muted);font-size:12px}.menu-item .price{color:var(--red);font-size:17px;font-weight:800;margin:8px 0}.menu-item button{margin-top:auto}
+.total-box{border-top:1px solid var(--border);margin-top:14px;padding-top:12px}.total-row{display:flex;justify-content:space-between;padding:5px 0;color:#394553}.grand{font-size:21px;font-weight:800;color:var(--red)}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#e9edf1;color:#33404c}.badge.green{background:#dff4e9;color:#126b43}
+.actions{display:flex;gap:5px;flex-wrap:wrap}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.notice{padding:12px;border-left:4px solid var(--red);background:#fff5f5;color:#4b3131;border-radius:5px;line-height:1.5}
+.printer-card{border:1px solid var(--border);border-radius:9px;padding:15px;margin-bottom:12px}
+.printer-card h3{margin:0 0 6px;color:var(--text)}.printer-card p{margin:5px 0;color:var(--muted);line-height:1.45}
+.status{font-weight:700}.status.ok{color:var(--green)}.status.warn{color:#a56500}
+.receipt-modal{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:15px;z-index:20}.receipt-modal.open{display:flex}
+.modal-box{background:#fff;border-radius:10px;width:min(600px,100%);max-height:92vh;overflow:auto;padding:18px}
+.receipt{width:80mm;max-width:100%;margin:10px auto;padding:8px;color:#000;background:#fff;font-family:"Courier New",monospace;font-size:12px}
+.receipt h2{color:#000;text-align:center;font-size:17px;margin:0 0 3px}.receipt .center{text-align:center}.receipt hr{border:0;border-top:1px dashed #000;margin:7px 0}.receipt-row{display:flex;justify-content:space-between;gap:8px}.receipt-total{font-weight:800;font-size:15px}
+.hidden{display:none}
+@media(max-width:1000px){.cards{grid-template-columns:repeat(2,1fr)}.grid,.settings-grid{grid-template-columns:repeat(2,1fr)}.cart-layout{grid-template-columns:1fr}.menu-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.cards,.grid,.settings-grid,.menu-grid{grid-template-columns:1fr}main{padding:10px}header{padding:12px}header h1{font-size:18px}}
+@media print{
+  @page{size:80mm auto;margin:0}
+  html,body{width:80mm!important;margin:0!important;padding:0!important;background:#fff!important}
+  body>*{display:none!important}
+  #receiptModal{display:block!important;position:static!important;background:#fff!important;width:80mm!important;height:auto!important}
+  #receiptModal .modal-box{display:block!important;width:80mm!important;max-width:80mm!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  #receiptModal .no-print{display:none!important}
+  #receipt{display:block!important;width:80mm!important;max-width:80mm!important;margin:0!important;padding:0!important}
+  .receipt{display:block!important;width:80mm!important;max-width:80mm!important;margin:0!important;padding:3mm!important;color:#000!important;background:#fff!important;font-family:"Courier New",monospace!important;font-size:11px!important;line-height:1.25!important}
+  .receipt h2,.receipt div,.receipt span{color:#000!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div>
+<h1>THE ROYAL DUM BIRYANI</h1>
+<p>Restaurant Billing & POS</p>
+</div>
+<button class="success" onclick="newBill()">+ New Bill</button>
+</header>
+
+<nav id="nav"></nav>
+
+<main>
+<section id="dashboard" class="tab active">
+<h2 class="page-title">Dashboard</h2>
+<p class="page-subtitle">Fast billing, thermal printing and restaurant sales management.</p>
+<div class="cards">
+<div class="card"><span>Today's Sales</span><b id="dSales">₹0</b></div>
+<div class="card"><span>Today's Bills</span><b id="dBills">0</b></div>
+<div class="card"><span>Pending Orders</span><b id="dPending">0</b></div>
+<div class="card"><span>Active Menu Items</span><b id="dItems">0</b></div>
+</div>
+<div class="panel">
+<div class="toolbar"><div><h2>Quick Actions</h2><p class="page-subtitle">Start billing or configure your printer.</p></div>
+<div class="actions"><button class="primary" onclick="showTab('billing')">Create Bill</button><button onclick="showTab('printer')">Printer Settings</button><button class="success" onclick="exportOrders()">Export Orders</button></div></div>
+</div>
+</section>
+
+<section id="billing" class="tab">
+<h2 class="page-title">New Bill</h2>
+<p class="page-subtitle">Bill numbers are automatic and sequential: RDB-0001, RDB-0002, RDB-0003...</p>
+<p class="page-subtitle">No customer name or mobile number is required. Add items and take payment.</p>
+<div class="cart-layout">
+<div class="panel">
+<div class="grid">
+<div class="field"><label>Order Type</label><select id="orderType"><option>Dine In</option><option>Take Away</option><option>Delivery</option></select></div>
+<div class="field"><label>Table No.</label><input id="tableNo" placeholder="Optional"></div>
+<div class="field"><label>Coupon Code</label><input id="coupon" placeholder="Optional"></div>
+<div class="field"><label>Payment</label><select id="payment"><option>Cash</option><option>UPI</option><option>Card</option><option>Online</option></select></div>
+<div class="field"><label>Discount (₹)</label><input id="discount" type="number" min="0" value="0" oninput="renderCart()"></div>
+<div class="field"><label>Delivery Charge (₹)</label><input id="delivery" type="number" min="0" value="0" oninput="renderCart()"></div>
+</div>
+<div class="table-wrap">
+<table><thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th>Action</th></tr></thead><tbody id="cartRows"></tbody></table>
+</div>
+<div class="total-box">
+<div class="total-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+<div class="total-row"><span>Discount</span><span id="discountTotal">₹0</span></div>
+<div class="total-row"><span>Delivery</span><span id="deliveryTotal">₹0</span></div>
+<div class="total-row grand"><span>Grand Total</span><span id="grandTotal">₹0</span></div>
+</div>
+<br>
+<button class="primary" onclick="saveBill()">Save Bill & Print</button>
+<button class="danger" onclick="clearCart()">Clear Cart</button>
+</div>
+
+<div class="panel">
+<h2>Food Menu</h2>
+<input id="menuSearch" placeholder="Search biryani, starters, drinks..." oninput="renderMenu()">
+<div id="billingMenu" class="menu-grid"></div>
+</div>
+</div>
+</section>
+
+<section id="orders" class="tab">
+<h2 class="page-title">Orders</h2>
+<p class="page-subtitle">View, print or delete previous bills.</p>
+<div class="panel">
+<div class="toolbar"><input id="orderSearch" style="max-width:360px" placeholder="Search order ID..." oninput="renderOrders()"><button class="success" onclick="exportOrders()">Export Orders</button></div>
+<div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Date</th><th>Type</th><th>Payment</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+</div>
+</section>
+
+<section id="menu" class="tab">
+<h2 class="page-title">Menu Management</h2>
+<p class="page-subtitle">Add, disable, enable or delete food items.</p>
+<div class="panel">
+<div class="toolbar"><span class="status">Menu items</span><button class="primary" onclick="openMenuModal()">+ Add Menu Item</button></div>
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody id="menuRows"></tbody></table></div>
+</div>
+</section>
+
+<section id="reports" class="tab">
+<h2 class="page-title">Reports</h2>
+<p class="page-subtitle">Sales summary from saved bills.</p>
+<div class="cards">
+<div class="card"><span>All Sales</span><b id="rSales">₹0</b></div>
+<div class="card"><span>Paid Bills</span><b id="rPaid">0</b></div>
+<div class="card"><span>Average Bill</span><b id="rAverage">₹0</b></div>
+<div class="card"><span>Cancelled Bills</span><b id="rCancelled">0</b></div>
+</div>
+<div class="panel"><button class="success" onclick="exportOrders()">Export Orders CSV</button></div>
+</section>
+
+<section id="printer" class="tab">
+<h2 class="page-title">H80i Thermal Printer Settings</h2>
+<p class="page-subtitle">Configured for your H80i 80mm thermal receipt printer.</p>
+<div class="notice">
+<b>H80i recommended setup:</b> Connect the H80i to Windows, install its printer driver, set it as the Windows default printer,
+select <b>80mm</b> below, and use <b>H80i Direct ESC/POS</b>. The receipt layout is optimized for 80mm paper.
+</div>
+
+<div class="settings-grid" style="margin-top:15px">
+<div class="panel">
+<h2>H80i Receipt Settings</h2>
+<div class="grid" style="grid-template-columns:1fr 1fr">
+<div class="field"><label>Printer</label><select id="printerModel"><option>H80i 80mm Thermal Printer</option></select></div>
+<div class="field"><label>Paper Width</label><select id="paperWidth"><option value="80" selected>80 mm</option><option value="58">58 mm</option></select></div>
+<div class="field"><label>Print Method</label><select id="printMethod"><option value="bridge">H80i Direct ESC/POS (USB)</option></select></div>
+<div class="field"><label>Auto Print After Bill</label><select id="autoPrint"><option value="yes" selected>Yes</option><option value="no">No</option></select></div>
+</div>
+<br>
+<div class="notice"><b>Recommended:</b> H80i + Windows printer driver + H80i Direct ESC/POS + 80mm paper.</div>
+<br><button class="primary" onclick="savePrinterSettings()">Save H80i Settings</button> <button onclick="testPrint()">🖨 Print H80i Test Receipt</button>
+</div>
+
+<div class="panel">
+<h2>Printer Connection</h2>
+<div class="printer-card">
+<h3>H80i Direct ESC/POS</h3>
+<p>This mode sends a real ESC/POS receipt directly to the installed Windows POS-80 queue. It does not use Chrome print preview and sends a paper-cut command.</p>
+<label>Windows Printer Queue</label>
+<select id="directPrinter" style="width:100%;padding:10px;margin:6px 0"></select>
+<div class="actions"><button onclick="loadDirectPrinters()">Refresh Printers</button> <button class="success" onclick="directTestPrint()">Direct Test Print</button></div>
+<p id="directStatus" class="status warn">Bridge not checked.</p>
+</div>
+<div class="printer-card">
+<h3>1. System / Windows Printer</h3>
+<p>Works with USB, Bluetooth, Wi-Fi and network printers that are already installed in Windows or Android.</p>
+<button onclick="systemPrint()">Direct Print</button>
+</div>
+<div class="printer-card">
+<h3>2. Bluetooth Thermal Printer</h3>
+<p>Web Bluetooth can work with supported BLE printers. Many low-cost thermal printers use Classic Bluetooth SPP and will need a vendor app or local print bridge.</p>
+<button class="primary" onclick="connectBluetooth()">Connect Bluetooth Printer</button>
+<p id="btStatus" class="status warn">Not connected</p>
+</div>
+<div class="printer-card">
+<h3>3. H80i USB / Windows Printer</h3>
+<p>For your H80i connected by USB, install the H80i/compatible Windows printer driver and confirm that a test page prints from Windows.</p>
+<p><b>Then:</b> set the H80i as the default printer → keep <b>H80i Direct ESC/POS</b> selected here → use the Test Receipt button.</p>
+<button onclick="systemPrint()">Open Windows Print</button>
+</div>
+<div class="printer-card">
+<h3>4. Other Thermal Printers</h3>
+<p>58mm/80mm USB, Bluetooth and LAN printers can be used through their Windows/Android driver or a compatible ESC/POS print bridge. Direct raw printing from a normal browser depends on the printer protocol and browser support.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<div id="menuModal" class="receipt-modal"><div class="modal-box">
+<h2>Add Menu Item</h2>
+<div class="grid">
+<div class="field"><label>Code</label><input id="mCode"></div>
+<div class="field"><label>Item Name</label><input id="mName"></div>
+<div class="field"><label>Category</label><input id="mCategory"></div>
+<div class="field"><label>Price (₹)</label><input id="mPrice" type="number" min="0"></div>
+</div><br><div class="actions" style="justify-content:flex-end"><button onclick="closeMenuModal()">Cancel</button><button class="primary" onclick="saveMenu()">Save Item</button></div>
+</div></div>
+
+<div id="receiptModal" class="receipt-modal"><div class="modal-box">
+<div class="actions no-print" style="justify-content:flex-end"><button onclick="closeReceipt()">Close</button><button class="success" onclick="systemPrint()">Print</button></div>
+<div id="receipt"></div>
+</div></div>
+
+<script>
+const KEY='royal_dum_biryani_pos_v2';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"menu":[],"orders":[],"printer":{}}');
+let cart=[];
+
+if(!db.menu.length){
+ db.menu=[
+  {code:'BRY001',name:'Chicken Dum Biryani',category:'Biryani',price:180,status:'Active'},
+  {code:'BRY002',name:'Mutton Dum Biryani',category:'Biryani',price:260,status:'Active'},
+  {code:'BRY003',name:'Egg Biryani',category:'Biryani',price:140,status:'Active'},
+  {code:'STA001',name:'Chicken 65',category:'Starters',price:160,status:'Active'},
+  {code:'STA002',name:'Chilli Chicken',category:'Starters',price:180,status:'Active'},
+  {code:'DRK001',name:'Cool Drink',category:'Beverages',price:40,status:'Active'},
+  {code:'DRK002',name:'Water Bottle',category:'Beverages',price:20,status:'Active'}
+ ];
+ save();
+}
+
+const tabs=['dashboard','billing','orders','menu','reports','printer'];
+const labels=['Dashboard','New Bill','Orders','Menu','Reports','Printer'];
+document.getElementById('nav').innerHTML=labels.map((x,i)=>`<button class="navbtn ${i===0?'active':''}" onclick="showTab('${tabs[i]}')">${x}</button>`).join('');
+
+function save(){localStorage.setItem(KEY,JSON.stringify(db));}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
+
+function showTab(id){
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.navbtn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===id));
+ refresh();
+}
+function refresh(){
+ renderMenu(); renderCart(); renderOrders(); renderMenuTable(); dashboard(); reports(); loadPrinterSettings();
+}
+
+function dashboard(){
+ const today=new Date().toLocaleDateString('en-IN');
+ const rows=db.orders.filter(o=>o.date===today&&o.status==='Paid');
+ document.getElementById('dSales').textContent=money(rows.reduce((s,o)=>s+o.total,0));
+ document.getElementById('dBills').textContent=rows.length;
+ document.getElementById('dPending').textContent=db.orders.filter(o=>o.status==='Pending').length;
+ document.getElementById('dItems').textContent=db.menu.filter(x=>x.status==='Active').length;
+}
+function reports(){
+ const paid=db.orders.filter(o=>o.status==='Paid'),sales=paid.reduce((s,o)=>s+o.total,0);
+ document.getElementById('rSales').textContent=money(sales);
+ document.getElementById('rPaid').textContent=paid.length;
+ document.getElementById('rAverage').textContent=money(paid.length?sales/paid.length:0);
+ document.getElementById('rCancelled').textContent=db.orders.filter(o=>o.status==='Cancelled').length;
+}
+
+function newBill(){
+ cart=[];
+ ['tableNo','coupon'].forEach(id=>document.getElementById(id).value='');
+ document.getElementById('discount').value=0;document.getElementById('delivery').value=0;
+ showTab('billing');
+}
+
+function renderMenu(){
+ const q=(document.getElementById('menuSearch')?.value||'').toLowerCase();
+ const items=db.menu.filter(x=>x.status==='Active'&&(x.name+' '+x.category).toLowerCase().includes(q));
+ document.getElementById('billingMenu').innerHTML=items.map(x=>`
+ <div class="menu-item">
+  <h3>${escapeHtml(x.name)}</h3><div class="cat">${escapeHtml(x.category)} • ${escapeHtml(x.code)}</div>
+  <div class="price">${money(x.price)}</div>
+  <button class="primary" onclick="addToCart('${x.code}')">Add to Bill</button>
+ </div>`).join('')||'<div class="empty">No menu items found.</div>';
+}
+
+function addToCart(code){
+ const item=db.menu.find(x=>x.code===code); if(!item)return;
+ const existing=cart.find(x=>x.code===code);
+ if(existing) existing.qty++; else cart.push({code:item.code,name:item.name,price:item.price,qty:1});
+ renderCart();
+}
+function renderCart(){
+ const body=document.getElementById('cartRows');
+ body.innerHTML=cart.map((x,i)=>`
+ <tr><td>${escapeHtml(x.name)}</td><td>${money(x.price)}</td>
+ <td><input style="width:70px" type="number" min="1" value="${x.qty}" onchange="cart[${i}].qty=Math.max(1,+this.value||1);renderCart()"></td>
+ <td>${money(x.price*x.qty)}</td>
+ <td><button class="danger" onclick="cart.splice(${i},1);renderCart()">Delete</button></td></tr>`).join('')||
+ '<tr><td colspan="5" class="empty">Cart is empty. Select items from the menu.</td></tr>';
+ const sub=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ const dis=Number(document.getElementById('discount')?.value||0);
+ const del=Number(document.getElementById('delivery')?.value||0);
+ const total=Math.max(0,sub-dis+del);
+ document.getElementById('subtotal').textContent=money(sub);
+ document.getElementById('discountTotal').textContent=money(dis);
+ document.getElementById('deliveryTotal').textContent=money(del);
+ document.getElementById('grandTotal').textContent=money(total);
+}
+function clearCart(){cart=[];renderCart();}
+
+function getNextBillNo(){
+ const key='rdb_bill_sequence';
+ let n=Number(localStorage.getItem(key)||0);
+ if(!Number.isInteger(n)||n<0)n=0;
+ // Recover the highest existing sequential RDB bill number if available.
+ const existing=db.orders.map(o=>{const m=String(o.id||'').match(/^RDB-(\d{4,})$/);return m?Number(m[1]):0;}).reduce((a,b)=>Math.max(a,b),0);
+ n=Math.max(n,existing);
+ const next=n+1;
+ localStorage.setItem(key,String(next));
+ return 'RDB-'+String(next).padStart(4,'0');
+}
+let billSaving=false;
+function saveBill(){
+ if(billSaving)return;
+ if(!cart.length)return alert('Add at least one food item.');
+ billSaving=true;
+ const sub=cart.reduce((s,x)=>s+x.price*x.qty,0);
+ const dis=Number(document.getElementById('discount').value||0);
+ const del=Number(document.getElementById('delivery').value||0);
+ const order={
+  id:getNextBillNo(),
+  date:new Date().toLocaleDateString('en-IN'),time:new Date().toLocaleTimeString('en-IN'),
+  type:document.getElementById('orderType').value,table:document.getElementById('tableNo').value,
+  coupon:document.getElementById('coupon').value,payment:document.getElementById('payment').value,
+  items:cart.map(x=>({...x})),subtotal:sub,discount:dis,delivery:del,total:Math.max(0,sub-dis+del),status:'Paid'
+ };
+ db.orders.unshift(order);save();showReceipt(order);cart=[];renderCart();refresh();
+ if((db.printer||{}).autoPrint!=='no'){setTimeout(()=>directSend(JSON.parse(JSON.stringify(order))).catch(e=>alert("Direct print failed: "+e.message)),350);}
+ setTimeout(()=>{billSaving=false;},400);
+}
+
+function renderOrders(){
+ const q=(document.getElementById('orderSearch')?.value||'').toLowerCase();
+ const rows=db.orders.filter(o=>o.id.toLowerCase().includes(q));
+ document.getElementById('orderRows').innerHTML=rows.map(o=>`
+ <tr><td>${o.id}</td><td>${o.date}<br>${o.time}</td><td>${o.type}${o.table?'<br>Table '+o.table:''}</td>
+ <td>${o.payment}</td><td>${o.items.reduce((s,x)=>s+x.qty,0)}</td><td>${money(o.total)}</td>
+ <td><span class="badge ${o.status==='Paid'?'green':''}">${o.status}</span></td>
+ <td class="actions"><button onclick="showReceiptById('${o.id}')">Print</button><button class="danger" onclick="deleteOrder('${o.id}')">Delete</button></td></tr>`).join('')||
+ '<tr><td colspan="8" class="empty">No bills yet.</td></tr>';
+}
+function deleteOrder(id){
+ if(confirm('Delete this bill permanently?')){db.orders=db.orders.filter(o=>o.id!==id);save();refresh();}
+}
+function showReceiptById(id){const o=db.orders.find(x=>x.id===id);if(o)showReceipt(o);}
+
+function showReceipt(o){ window.__lastReceipt=o;
+ document.getElementById('receipt').innerHTML=`
+ <div class="receipt">
+ <h2>THE ROYAL DUM BIRYANI</h2><div class="center">Restaurant Bill</div><hr>
+ <div>Bill No: ${o.id}</div><div>Date: ${o.date} ${o.time}</div>
+ <div>Type: ${o.type}</div>${o.table?`<div>Table: ${escapeHtml(o.table)}</div>`:''}<hr>
+ ${o.items.map(x=>`<div class="receipt-row"><span>${escapeHtml(x.name)} x${x.qty}</span><span>${money(x.price*x.qty)}</span></div>`).join('')}
+ <hr><div class="receipt-row"><span>Subtotal</span><span>${money(o.subtotal)}</span></div>
+ <div class="receipt-row"><span>Discount</span><span>${money(o.discount)}</span></div>
+ <div class="receipt-row"><span>Delivery</span><span>${money(o.delivery)}</span></div>
+ <div class="receipt-row receipt-total"><span>TOTAL</span><span>${money(o.total)}</span></div>
+ <div>Payment: ${o.payment}</div><hr><div class="center">Thank You! Visit Again.</div>
+ </div>`;
+ document.getElementById('receiptModal').classList.add('open');
+}
+function closeReceipt(){document.getElementById('receiptModal').classList.remove('open');}
+
+function systemPrint(){
+  if(!window.__lastReceipt){alert('Create or open a bill first.');return;}
+  directSend(JSON.parse(JSON.stringify(window.__lastReceipt))).catch(e=>alert('Direct print failed: '+e.message));
+}
+async function testPrint(){
+ const fake={id:'TEST-0001',date:new Date().toLocaleDateString('en-IN'),time:new Date().toLocaleTimeString('en-IN'),type:'Test Print',table:'',payment:'Cash',items:[{name:'Chicken Dum Biryani',qty:1,price:180}],subtotal:180,discount:0,delivery:0,total:180};
+ try{await directSend(fake);alert('Direct H80i test receipt sent.');}catch(e){alert(e.message);}
+}
+async function loadDirectPrinters(){
+ const st=document.getElementById('directStatus'); const sel=document.getElementById('directPrinter');
+ try{ const r=await fetch('http://127.0.0.1:17890/printers'); const d=await r.json(); sel.innerHTML=d.printers.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join(''); st.textContent='Bridge connected. '+d.printers.length+' printer(s) found.';st.className='status ok'; const saved=(db.printer||{}).directPrinter; if(saved) sel.value=saved; }catch(e){st.textContent='Start start-bridge.bat first.';st.className='status warn';}
+}
+async function directSend(o){
+ const printer=document.getElementById('directPrinter').value; if(!printer)throw new Error('Select the H80i Windows printer queue first.'); db.printer=db.printer||{};db.printer.directPrinter=printer;save();
+ const r=await fetch('http://127.0.0.1:17890/print',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...o,printer})}); const d=await r.json(); if(!d.ok)throw new Error(d.error||'Print failed');
+}
+async function directTestPrint(){ const fake={id:'TEST-0001',date:new Date().toLocaleDateString('en-IN'),time:new Date().toLocaleTimeString('en-IN'),type:'Test Print',table:'',payment:'Cash',items:[{name:'Chicken Dum Biryani',qty:1,price:180}],subtotal:180,discount:0,delivery:0,total:180}; try{await directSend(fake);document.getElementById('directStatus').textContent='Test receipt sent.';document.getElementById('directStatus').className='status ok';}catch(e){alert(e.message);}}
+
+async function connectBluetooth(){
+ const status=document.getElementById('btStatus');
+ if(!navigator.bluetooth){status.textContent='Web Bluetooth is not supported in this browser.';status.className='status warn';return;}
+ try{
+  status.textContent='Select a supported Bluetooth LE printer/device...';
+  const device=await navigator.bluetooth.requestDevice({acceptAllDevices:true});
+  status.textContent='Selected: '+(device.name||'Bluetooth device')+'. Connection depends on the printer protocol.';
+  status.className='status ok';
+ }catch(e){
+  status.textContent='Bluetooth selection cancelled or unavailable.';
+  status.className='status warn';
+ }
+}
+function savePrinterSettings(){
+ db.printer={paperWidth:document.getElementById('paperWidth').value,method:document.getElementById('printMethod').value,directPrinter:document.getElementById('directPrinter')?.value||'',
+ autoPrint:document.getElementById('autoPrint').value,
+ ip:document.getElementById('printerIp').value,port:document.getElementById('printerPort').value};
+ save();alert('Printer settings saved.');
+}
+function loadPrinterSettings(){
+ const p=db.printer||{};
+ if(document.getElementById('paperWidth'))document.getElementById('paperWidth').value=p.paperWidth||'80';
+ if(document.getElementById('printMethod'))document.getElementById('printMethod').value=p.method||'bridge';
+ if(document.getElementById('autoPrint'))document.getElementById('autoPrint').value=p.autoPrint||'yes'; if(document.getElementById('directPrinter')){document.getElementById('directPrinter').value=p.directPrinter||''; setTimeout(loadDirectPrinters,200);}
+ if(document.getElementById('printerIp'))document.getElementById('printerIp').value=p.ip||'';
+ if(document.getElementById('printerPort'))document.getElementById('printerPort').value=p.port||'9100';
+}
+
+function renderMenuTable(){
+ document.getElementById('menuRows').innerHTML=db.menu.map((x,i)=>`
+ <tr><td>${escapeHtml(x.code)}</td><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.category)}</td>
+ <td>${money(x.price)}</td><td>${x.status}</td><td class="actions">
+ <button onclick="toggleMenu(${i})">${x.status==='Active'?'Disable':'Enable'}</button>
+ <button class="danger" onclick="deleteMenu(${i})">Delete</button></td></tr>`).join('');
+}
+function toggleMenu(i){db.menu[i].status=db.menu[i].status==='Active'?'Inactive':'Active';save();refresh();}
+function deleteMenu(i){if(confirm('Delete this menu item?')){db.menu.splice(i,1);save();refresh();}}
+function openMenuModal(){['mCode','mName','mCategory','mPrice'].forEach(x=>document.getElementById(x).value='');document.getElementById('menuModal').classList.add('open');}
+function closeMenuModal(){document.getElementById('menuModal').classList.remove('open');}
+function saveMenu(){
+ const x={code:mCode.value.trim(),name:mName.value.trim(),category:mCategory.value.trim(),price:Number(mPrice.value||0),status:'Active'};
+ if(!x.code||!x.name||!x.price)return alert('Enter code, item name and price.');
+ if(db.menu.some(y=>y.code===x.code))return alert('Item code already exists.');
+ db.menu.push(x);save();closeMenuModal();refresh();
+}
+function exportOrders(){
+ if(!db.orders.length)return alert('No orders to export.');
+ const headers=['Order ID','Date','Time','Order Type','Table','Payment','Subtotal','Discount','Delivery','Grand Total','Status','Items'];
+ const rows=db.orders.map(o=>[o.id,o.date,o.time,o.type,o.table,o.payment,o.subtotal,o.discount,o.delivery,o.total,o.status,o.items.map(x=>x.name+' x'+x.qty).join('; ')]);
+ const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')).join('\
+');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='Royal_Dum_Biryani_Orders.csv';a.click();
+}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+
+refresh();
+</script>
+</body>
+</html>
