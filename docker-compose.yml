@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:17
+    container_name: royal-dum-biryani-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: royal_saas
+      POSTGRES_PASSWORD: royal_saas_dev
+      POSTGRES_DB: royal_saas
+    ports:
+      - "5432:5432"
+    volumes:
+      - royal_dum_biryani_pgdata:/var/lib/postgresql/data
+volumes:
+  royal_dum_biryani_pgdata:

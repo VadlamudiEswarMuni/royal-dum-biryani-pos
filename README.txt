@@ -1,21 +1,18 @@
-ROYAL DUM BIRYANI - H80i DIRECT PRINT v4
+ROYAL DUM BIRYANI - H80i DIRECT PRINT v6
 
-This version keeps the working local ESC/POS bridge and improves the receipt layout for the H80i 80mm printer.
+Features:
+- H80i 80mm direct ESC/POS printing through local start-bridge.bat
+- Sequential bill numbers RDB-0001, RDB-0002...
+- Bills, menu and printer settings stored in IndexedDB with localStorage fallback
+- Automatic ISO timestamp on every bill
+- Daily, weekly (Mon-Sun), monthly and custom date sales reports
+- Filtered bill list and CSV export
+- Full data backup/restore JSON
+- Existing v5 localStorage data is migrated into v6 on first run
 
-Changes in v4:
-- Approximately 3mm left margin using ESC/POS GS L.
-- Controlled print area width using GS W.
-- Receipt header remains centered; bill details remain left aligned.
-- Feeds a small amount before cutting.
-- Uses GS V 65 0 (feed to cutting position + full cut) instead of the previous partial-cut command.
+Important:
+This standalone version stores data on the current browser/device. It is not a cloud database and data is not automatically shared between computers. For the multi-vendor SaaS version, use the PostgreSQL backend.
 
-Setup:
-1. Keep the H80i installed in Windows and confirm its Windows test page works.
-2. If Windows Smart App Control blocks start-bridge.bat, use the file Properties > Unblock option if available.
-3. Run start-bridge.bat as Administrator and keep the black window open.
-4. Open index.html.
-5. Printer Settings > Refresh Printers.
-6. Select POS-80(copy of 1) (or the actual H80i Windows queue shown).
-7. Click Direct Test Print.
-
-The bridge uses Windows RAW printing and does not open browser print preview.
+Start the print bridge before using Direct ESC/POS:
+1. Right-click start-bridge.bat -> Run as administrator (if Windows requires it).
+2. Open index.html or serve the folder from a local web server.
